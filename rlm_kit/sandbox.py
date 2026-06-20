@@ -1,8 +1,8 @@
 """Sandbox / code-interpreter selection — the security boundary of the scaffold.
 
 RLM works by letting the model write and execute Python in a REPL. When that
-REPL is fed half-trusted scraped content (exactly the security use case this
-scaffold targets), the interpreter choice *is* the attack surface.
+REPL is fed half-trusted scraped content (a common case the moment a task pulls
+from the web or any untrusted source), the interpreter choice *is* the attack surface.
 
 Policy:
 

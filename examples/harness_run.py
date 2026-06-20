@@ -32,22 +32,22 @@ from rlm_kit import (
 )
 
 
-class Finding(BaseModel):
-    title: str = Field(..., description="Short finding title.")
-    severity: str = Field(..., description="low|medium|high|critical")
+class Note(BaseModel):
+    title: str = Field(..., description="Short note title.")
+    takeaway: str = Field(..., description="the key takeaway, one line")
 
 
 def _non_empty(text: str):
     return None if text.strip() else "empty response"
 
 
-class SecurityTriage(RLMTask):
-    signature = "evidence: str -> finding: Finding"
-    output_field = "finding"
-    output_model = Finding
+class Research(RLMTask):
+    signature = "topic: str -> note: Note"
+    output_field = "note"
+    output_model = Note
     instructions = (
-        "You are a security analyst. Use list_skills/read_skill to consult "
-        "playbooks, then emit a Finding JSON."
+        "You are a research assistant. Use list_skills/read_skill to consult "
+        "reference notes, then emit a Note JSON."
     )
 
     def __init__(self, skills_dir: str, **kw):
@@ -65,15 +65,15 @@ async def main() -> None:
         base_sub, validators=[_non_empty], postprocessors=[str.strip], name="local-sub"
     )
 
-    task = SecurityTriage(
+    task = Research(
         skills_dir=os.getenv("SKILLS_DIR", "./skills"),
         sub_lm=intercepted_sub,
     )
 
     trace_path = "./traces/run.jsonl"
-    with TraceRecorder(trace_path, run_id="triage-001", meta={"task": "triage"}):
-        finding = await task.arun(evidence="...redacted evidence blob...")
-    print(finding.model_dump_json(indent=2))
+    with TraceRecorder(trace_path, run_id="research-001", meta={"task": "research"}):
+        note = await task.arun(topic="...the topic to research...")
+    print(note.model_dump_json(indent=2))
 
     # The same trace doubles as an Agentic-RL dataset source.
     runs = group_by_run(load_events(trace_path))

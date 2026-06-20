@@ -1,7 +1,7 @@
 # rlm-kit — agent guide
 
 `rlm-kit` is a small, reusable scaffold over `dspy.RLM` (Recursive Language Models)
-for building security tasks. A task is a *declaration* — a `RLMTask` subclass with
+for building tasks (of any kind). A task is a *declaration* — a `RLMTask` subclass with
 a `signature`, `output_field`, optional `output_model`, `instructions`, and
 `tools`; retry/validation, sandbox selection, budget caps, and observability are
 inherited. See `README.md` for the full layout and usage.
@@ -124,7 +124,7 @@ One companion rule ships under `.claude/rules/`:
 
 ## Consumer-driven hardening
 
-- This kit is driven by a real downstream consumer (a security task that builds on the
+- This kit is driven by a real downstream consumer (a task that builds on the
   scaffold via an editable path dep). That dogfooding is the design loop: when the consumer
   forces a workaround, log the **reusable** gap and fix it in the kit — do not special-case
   the consumer. Generic mechanics get promoted here via the base/wrap split (a generic base +

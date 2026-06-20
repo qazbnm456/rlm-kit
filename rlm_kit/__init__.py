@@ -1,4 +1,4 @@
-"""rlm-kit — a clean, reusable scaffold for security tasks on DSPy RLMs.
+"""rlm-kit — a clean, reusable harness for building tasks on DSPy RLMs.
 
 Public surface::
 

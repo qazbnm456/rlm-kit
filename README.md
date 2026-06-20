@@ -1,6 +1,6 @@
 # rlm-kit
 
-A clean, reusable scaffold for building **security tasks** on top of
+A clean, reusable harness for building **any task** on top of
 [DSPy](https://dspy.ai)'s Recursive Language Model module (`dspy.RLM`).
 
 RLMs ([Zhang & Khattab, MIT, arXiv:2512.24601](https://arxiv.org/abs/2512.24601))
@@ -9,6 +9,11 @@ Python REPL and recursively calling sub-LLMs over it. DSPy's `dspy.RLM` is the
 first-party implementation (Khattab co-authored both DSPy and the RLM paper) — it
 works with existing Signatures and is optimizer-compatible (GEPA/MIPRO). This kit
 distills the boilerplate around it into one small, opinionated layer.
+
+**rlm-kit is domain-agnostic** — anything `dspy.RLM` can do fits: multi-hop "deep
+research", an RSS-digest agent that posts to a webhook, structured extraction,
+detection authoring, you name it. Security happens to be the author's own first
+use of it, but it isn't the kit's scope.
 
 ## Why this exists
 
@@ -21,19 +26,19 @@ from rlm_kit import RLMConfig, RLMTask, configure
 from rlm_kit.tools import make_schema_validator
 from pydantic import BaseModel
 
-class Finding(BaseModel):
+class Article(BaseModel):
     title: str
-    severity: str
+    summary: str
 
-class TriageDiff(RLMTask):
-    signature = "diff: str -> finding: Finding"
-    output_field = "finding"
-    output_model = Finding
-    instructions = "You are a secure-code reviewer."
-    tools = [make_schema_validator(Finding)]
+class Summarize(RLMTask):
+    signature = "document: str -> article: Article"
+    output_field = "article"
+    output_model = Article
+    instructions = "Read the document and produce a title and a one-paragraph summary."
+    tools = [make_schema_validator(Article)]
 
 configure(RLMConfig.from_env())
-finding = TriageDiff().run(diff=big_patch_text)   # validated Finding
+article = Summarize().run(document=long_text)   # validated Article
 ```
 
 The retry loop, pydantic validation, sandbox selection, and budget caps are all
@@ -290,7 +295,7 @@ and `max_iterations` there so an offline reader reads the real per-run values, n
 ## Building a consumer
 
 `rlm-kit` is the ROLLOUT floor; a consumer is a thin declaration on top of it. `examples/harness_run.py`
-is a minimal worked example — a security-triage task that wires the sub-LM hook, skills, tracing, and
+is a minimal worked example — a task that wires the sub-LM hook, skills, tracing, and
 RL export together. Five steps:
 
 1. **Declare the task.** Subclass `RLMTask`: a `signature`, `output_field`, an `output_model`

@@ -1,13 +1,13 @@
 """The ``RLMTask`` base class — the one abstraction this scaffold exists for.
 
-A security task is declared by subclassing ``RLMTask`` and filling four fields:
+A task is declared by subclassing ``RLMTask`` and filling four fields:
 
-    class TriageCommit(RLMTask):
-        signature = "diff: str -> finding: CommitFinding"
-        output_field = "finding"
-        output_model = CommitFinding          # a pydantic BaseModel
-        instructions = "You are a secure-code reviewer..."
-        tools = [make_schema_validator(CommitFinding)]
+    class Summarize(RLMTask):
+        signature = "document: str -> article: Article"
+        output_field = "article"
+        output_model = Article                 # a pydantic BaseModel
+        instructions = "Summarize the document into a title and a paragraph."
+        tools = [make_schema_validator(Article)]
 
 Everything else — building ``dspy.RLM``, choosing the sandbox, budget caps,
 retrying on validation failure, observability — is inherited. A consumer's

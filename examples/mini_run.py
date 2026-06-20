@@ -27,18 +27,18 @@ from rlm_kit import (
 )
 
 
-class Severity(BaseModel):
-    label: str = Field(..., description="one of: low, medium, high, critical")
-    reason: str = Field(..., description="one short sentence")
+class Summary(BaseModel):
+    title: str = Field(..., description="a short title")
+    gist: str = Field(..., description="one short sentence")
 
 
-class RateSeverity(RLMTask):
-    signature = "advisory: str -> severity: Severity"
-    output_field = "severity"
-    output_model = Severity
+class Summarize(RLMTask):
+    signature = "document: str -> summary: Summary"
+    output_field = "summary"
+    output_model = Summary
     instructions = (
-        "You are a vulnerability triage assistant. Read the advisory text and "
-        "return a Severity JSON. Keep it short."
+        "Read the document and return a Summary JSON (a title and a one-sentence gist). "
+        "Keep it short."
     )
 
 
@@ -47,15 +47,16 @@ async def main() -> None:
     print(f"main={cfg.main_model} sub={cfg.sub_model} interpreter={cfg.interpreter}")
 
     # Keep the loop tiny/cheap.
-    task = RateSeverity(max_retries=2)
+    task = Summarize(max_retries=2)
 
     trace_path = "./traces/mini_run.jsonl"
-    advisory = (
-        "A remote unauthenticated attacker can send a crafted HTTP request to the "
-        "admin endpoint and execute arbitrary OS commands as root."
+    document = (
+        "Recursive Language Models treat unbounded context as a variable in a sandboxed "
+        "REPL and recursively call sub-models over it, instead of stuffing everything into "
+        "one prompt."
     )
-    with TraceRecorder(trace_path, run_id="mini-001", meta={"task": "rate_severity"}):
-        result = await task.arun(advisory=advisory)
+    with TraceRecorder(trace_path, run_id="mini-001", meta={"task": "summarize"}):
+        result = await task.arun(document=document)
 
     print("\n=== RESULT ===")
     print(result.model_dump_json(indent=2))

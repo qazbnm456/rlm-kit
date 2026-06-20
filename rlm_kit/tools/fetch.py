@@ -1,6 +1,6 @@
 """SSRF-aware fetch tooling for RLM tasks.
 
-Security tasks routinely need to pull remote content (advisories, PoCs, threat
+Tasks routinely need to pull remote content (web pages, docs, feeds, threat
 intel). Handing an LLM-driven REPL an unrestricted fetcher is an SSRF liability:
 the model can be steered — by the very untrusted content it is analysing — into
 requesting internal services or cloud metadata endpoints.

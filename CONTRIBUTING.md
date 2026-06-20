@@ -1,7 +1,7 @@
 # Contributing to rlm-kit
 
 Thanks for helping improve `rlm-kit` — a small, reusable scaffold over `dspy.RLM`
-(Recursive Language Models) for building security tasks. This guide is the short
+(Recursive Language Models) for building tasks of any kind. This guide is the short
 version; the deep design rules live in [`CLAUDE.md`](./CLAUDE.md) and the
 extension contract in the README's [**Building a consumer**](./README.md#building-a-consumer).
 

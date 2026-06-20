@@ -1,7 +1,7 @@
 [project]
 name = "rlm-kit"
 version = "0.2.0"
-description = "A clean, reusable scaffold for building security tasks on DSPy Recursive Language Models (RLM)."
+description = "A clean, reusable harness for building tasks on DSPy Recursive Language Models (RLMs)."
 readme = "README.md"
 requires-python = ">=3.11"
 license = "MIT"
@@ -14,7 +14,7 @@ keywords = [
     "llm",
     "agent",
     "reinforcement-learning",
-    "security",
+    "harness",
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -24,8 +24,8 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Operating System :: OS Independent",
-    "Topic :: Security",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Typing :: Typed",
 ]
 dependencies = [
