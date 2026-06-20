@@ -19,8 +19,10 @@ dogfooding a real downstream consumer.
   server, bundles none). The crux: the MCP SDK is async but dspy.RLM invokes tools synchronously, so
   the session runs in a dedicated background thread + event loop and each call bridges via
   `run_coroutine_threadsafe(...).result(timeout)` — dspy's own `Tool.from_mcp_tool` yields an ASYNC
-  tool for `ReAct.acall`, unusable on the RLM sync path. Each call records a `tool_call` (trace/v1,
-  no schema change). MCP tools run HOST-SIDE (outside the sandbox; a stdio server is a spawned
+  tool for `ReAct.acall`, unusable on the RLM sync path. A hung tool call trips the `timeout` and is
+  cancelled (so it can't wedge the serial session); a start failure still tears the bridge down (no
+  leaked thread/subprocess). Both stdio and streamable-HTTP transports are integration-tested
+  against a real server. Each call records a `tool_call` (trace/v1, no schema change). MCP tools run HOST-SIDE (outside the sandbox; a stdio server is a spawned
   subprocess) — treat the server as a trusted dependency and its output as a prompt-injection
   surface. `mcp.py` lives outside the dspy-free `tools/` and `mcp_tools` is a lazy export, so
   `import rlm_kit` stays dspy/mcp-free.

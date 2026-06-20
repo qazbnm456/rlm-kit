@@ -24,6 +24,7 @@ Optional: needs ``pip install "rlm-kit[mcp]"``.
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
 import contextlib
 import json
 import threading
@@ -157,7 +158,13 @@ class _MCPBridge:
         fut = asyncio.run_coroutine_threadsafe(
             self._session.call_tool(name, arguments or {}), self._loop
         )
-        return fut.result(self._timeout)
+        try:
+            return fut.result(self._timeout)
+        except concurrent.futures.TimeoutError:
+            # Don't leave a hung call_tool coroutine running in the loop — the session is serial,
+            # so it would wedge every later call. Request its cancellation and surface the timeout.
+            fut.cancel()
+            raise TimeoutError(f"MCP tool {name!r} timed out after {self._timeout}s") from None
 
     def close(self) -> None:
         if self._stop is not None and self._loop.is_running():

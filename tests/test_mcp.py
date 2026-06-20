@@ -101,3 +101,111 @@ def test_bad_server_spec_raises_and_cleans_up():
             pass
     # start() failed, but mcp_tools' finally still closed the bridge — no leaked background thread.
     assert "rlm-kit-mcp" not in ({t.name for t in threading.enumerate()} - before)
+
+
+# ---- HTTP transport: real streamable-HTTP server, sync call --------------
+
+_HTTP_SERVER = '''
+import sys
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("echo-http", host="127.0.0.1", port=int(sys.argv[1]))
+
+
+@mcp.tool()
+def echo(text: str) -> str:
+    return f"echo: {text}"
+
+
+if __name__ == "__main__":
+    mcp.run(transport="streamable-http")
+'''
+
+
+def _free_port() -> int:
+    import socket
+
+    s = socket.socket()
+    s.bind(("127.0.0.1", 0))
+    port = s.getsockname()[1]
+    s.close()
+    return port
+
+
+def _wait_port(port: int, timeout: float = 20.0) -> None:
+    import socket
+    import time
+
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=0.5):
+                return
+        except OSError:
+            time.sleep(0.1)
+    raise TimeoutError(f"HTTP MCP server did not start on :{port}")
+
+
+def test_mcp_tools_streamable_http(tmp_path):
+    import subprocess
+
+    port = _free_port()
+    server = tmp_path / "http_server.py"
+    server.write_text(_HTTP_SERVER)
+    proc = subprocess.Popen(
+        [sys.executable, str(server), str(port)],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    try:
+        _wait_port(port)
+        # exercises the streamable-HTTP transport (3-tuple streams) end-to-end, not just stdio.
+        with mcp_tools({"url": f"http://127.0.0.1:{port}/mcp"}, timeout=20) as tools:
+            assert [t.name for t in tools] == ["echo"]
+            assert tools[0](text="hi") == "echo: hi"
+    finally:
+        proc.terminate()
+        try:
+            proc.wait(timeout=10)
+        except Exception:  # noqa: BLE001
+            proc.kill()
+
+
+# ---- per-call timeout + cancel (a hung tool must not wedge the session) ---
+
+_SLOW_SERVER = '''
+import asyncio
+from mcp.server.fastmcp import FastMCP
+
+mcp = FastMCP("slow-test")
+
+
+@mcp.tool()
+async def slow() -> str:
+    await asyncio.sleep(30)
+    return "done"
+
+
+@mcp.tool()
+def echo(text: str) -> str:
+    return f"echo: {text}"
+
+
+if __name__ == "__main__":
+    mcp.run(transport="stdio")
+'''
+
+
+def test_hung_tool_times_out_and_session_survives(tmp_path):
+    import time
+
+    server = tmp_path / "slow_server.py"
+    server.write_text(_SLOW_SERVER)
+    # a short per-call timeout: `slow` sleeps 30s, so it must trip the timeout+cancel quickly.
+    with mcp_tools({"command": sys.executable, "args": [str(server)]}, timeout=5) as tools:
+        by_name = {t.name: t for t in tools}
+        t0 = time.monotonic()
+        out = by_name["slow"]()
+        assert time.monotonic() - t0 < 20              # tripped at ~5s, NOT the 30s sleep
+        assert "timed out" in out.lower()              # surfaced as a reactable string
+        # the cancel kept the session usable — a fast call still works afterwards.
+        assert by_name["echo"](text="ok") == "echo: ok"
