@@ -1,7 +1,7 @@
 import pytest
 
 from rlm_kit.dataset import export_rl, export_sft_turns, final_outputs
-from rlm_kit.replay import RecordedToolProvider, load_timeline, reconstruct
+from rlm_kit.replay import RecordedToolProvider, load_timeline
 from rlm_kit.trace import TraceRecorder, group_by_run, load_events
 
 

@@ -148,7 +148,6 @@ class _Out(BaseModel):
 
 def _task_with_fake_rlm(pred):
     """An RLMTask whose RLM is a stub returning `pred` from aforward (no LLM / sandbox)."""
-    import types
 
     class T(RLMTask):
         signature = "q: str -> answer: _Out"

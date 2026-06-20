@@ -16,7 +16,7 @@ returned ``ModelToolResult`` — its own tool name, result-message wording, and 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Callable, Optional, Tuple, Union
+from typing import Any, Callable, Optional, Tuple
 
 # A chat function maps a spec to the model's output. It may return:
 #   - a plain string (the answer), or
