@@ -4,7 +4,7 @@ All notable changes to `rlm-kit`. Format loosely follows
 [Keep a Changelog](https://keepachangelog.com/). Versions track
 `rlm_kit/__init__.__version__` and `pyproject.toml` (kept in sync).
 
-## [0.2.0] — unreleased
+## [0.2.0] — 2026-06-21
 
 Harness-engineering layer, plus the first round of hardening surfaced by
 dogfooding a real downstream consumer.
