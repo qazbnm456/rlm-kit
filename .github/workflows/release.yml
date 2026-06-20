@@ -1,0 +1,45 @@
+name: Release
+
+# Publish to PyPI via Trusted Publishing (OIDC) — NO API token. This is INERT until a
+# GitHub Release is published, and requires one-time setup before the first release:
+#   1. On PyPI, add a Trusted Publisher for project `rlm-kit`:
+#        owner = qazbnm456, repo = rlm-kit, workflow = release.yml, environment = pypi
+#   2. In this repo's settings, create an environment named `pypi`.
+# Then publishing a GitHub Release (from a `vX.Y.Z` tag) builds + uploads automatically.
+# Action majors (checkout@v4, setup-uv@v5, *-artifact@v4, pypi-publish@release/v1) are
+# current; bump if a newer major ships.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Build sdist + wheel
+        run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write          # OIDC token for PyPI Trusted Publishing
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - name: Publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
