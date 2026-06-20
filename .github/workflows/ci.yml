@@ -25,7 +25,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           enable-cache: true
       - name: Run tests
-        run: uv run --group dev python -m pytest -q
+        # --extra mcp so the MCP-client tests run (they spawn a stdio MCP subprocess) rather than skip
+        run: uv run --group dev --extra mcp python -m pytest -q
 
   lint:
     name: ruff

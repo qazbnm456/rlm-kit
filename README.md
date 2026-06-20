@@ -191,6 +191,31 @@ Scope & caveats:
   context — treat untrusted skills as a **prompt-injection surface** and vet them. Frontmatter
   beyond `name`/`description` is ignored.
 
+## MCP tools (connect an external MCP server)
+
+`mcp_tools(server)` exposes an **external** [MCP](https://modelcontextprotocol.io) server's tools to
+an `RLMTask` as ready-to-use tools. rlm-kit is a **client only** — it never runs a server and bundles
+none; you point it at someone else's (a local stdio command, or a remote streamable-HTTP URL):
+
+```python
+from rlm_kit import mcp_tools
+
+with mcp_tools({"url": "https://mcp.example.com/mcp"}) as tools:        # or {"command": "npx", "args": [...]}
+    finding = MyTask(tools=tools).run(...)                              # the server's tools are now callable
+```
+
+Needs the extra: `pip install "rlm-kit[mcp]"`.
+
+- **The connection is live for the `with` block** and torn down on exit (a stdio subprocess is
+  terminated). Each tool call is recorded as a `tool_call` in the trace, like any other tool.
+- **Sync, despite an async SDK.** The MCP Python SDK is async, but dspy.RLM invokes tools
+  synchronously, so rlm-kit runs the session in a background thread and bridges each call across.
+  (dspy's own `Tool.from_mcp_tool` makes an *async* tool for `dspy.ReAct` — it does not work on the
+  RLM sandbox path, which is why `mcp_tools` exists.)
+- **Security: MCP tools run HOST-SIDE**, outside the sandbox — a stdio server is a subprocess this
+  process spawns. Treat an MCP server as a **trusted dependency**, and its output as a
+  **prompt-injection surface** (untrusted LM context), exactly like fetched web content.
+
 ## Grounded completeness — the sufficiency-critic recipe
 
 A convention, not an API. When the RLM generates an artifact that must MATCH a retrieved

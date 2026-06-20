@@ -11,6 +11,19 @@ dogfooding a real downstream consumer.
 
 ### Added
 
+- **MCP client — connect an external MCP server's tools to an RLM** (`rlm_kit.mcp.mcp_tools`,
+  optional `rlm-kit[mcp]`). `with mcp_tools(server) as tools:` connects to someone else's
+  [MCP](https://modelcontextprotocol.io) server (a local stdio command, or a remote streamable-HTTP
+  URL), discovers its tools, and yields them as ready-to-use `dspy.Tool`s for `RLMTask(tools=…)`;
+  the connection is live for the block and torn down on exit. rlm-kit is a CLIENT only (never a
+  server, bundles none). The crux: the MCP SDK is async but dspy.RLM invokes tools synchronously, so
+  the session runs in a dedicated background thread + event loop and each call bridges via
+  `run_coroutine_threadsafe(...).result(timeout)` — dspy's own `Tool.from_mcp_tool` yields an ASYNC
+  tool for `ReAct.acall`, unusable on the RLM sync path. Each call records a `tool_call` (trace/v1,
+  no schema change). MCP tools run HOST-SIDE (outside the sandbox; a stdio server is a spawned
+  subprocess) — treat the server as a trusted dependency and its output as a prompt-injection
+  surface. `mcp.py` lives outside the dspy-free `tools/` and `mcp_tools` is a lazy export, so
+  `import rlm_kit` stays dspy/mcp-free.
 - **The extension contract is now documented AND guarded** (`CLAUDE.md`, `README.md`,
   `tests/test_contract.py`) — so the next consumer builds on rlm-kit without reverse-engineering it.
   A README **"Building a consumer"** section states the 5-step recipe, the promotion rule

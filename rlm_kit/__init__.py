@@ -60,6 +60,8 @@ __all__ = [
     "export_sft_turns",
     "export_rl",
     "export_actions",
+    # MCP client (optional: rlm-kit[mcp])
+    "mcp_tools",
 ]
 
 __version__ = "0.2.0"
@@ -74,4 +76,8 @@ def __getattr__(name: str):  # PEP 562 lazy re-export to defer dspy import
         from .task import RLMTask
 
         return RLMTask
+    if name == "mcp_tools":  # optional MCP client (imports dspy + mcp lazily)
+        from .mcp import mcp_tools
+
+        return mcp_tools
     raise AttributeError(f"module {__name__!r} has no attribute {name!r}")

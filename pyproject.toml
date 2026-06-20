@@ -39,6 +39,9 @@ observe = [
     "langfuse>=4.6.1",
     "openinference-instrumentation-dspy>=0.1.36",
 ]
+mcp = [
+    "mcp>=1.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/qazbnm456/rlm-kit"

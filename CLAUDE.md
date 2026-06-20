@@ -45,6 +45,18 @@ One companion rule ships under `.claude/rules/`:
   `"<coroutine object …>"`. So `tools/` factories (`make_fetch_tool`,
   `make_web_search_tool`, …) and their `fetcher`/`searcher` inputs are sync. Don't make
   a tool `async`; wrap an async client into a sync call yourself.
+- **MCP is CLIENT-ONLY, and its async SDK is bridged to sync (`mcp.py`, optional `rlm-kit[mcp]`).**
+  `mcp_tools(server)` connects to an EXTERNAL MCP server (rlm-kit never IS a server, never bundles
+  one — you point it at someone else's) and exposes that server's tools to `RLMTask`. The MCP SDK is
+  async (`ClientSession.call_tool` is a coroutine) but RLM tools must be sync (above), so the session
+  runs in a dedicated background thread + event loop kept alive for the `with` block, and each tool
+  bridges one call via `run_coroutine_threadsafe(...).result(timeout)`. Do NOT reuse dspy's
+  `dspy.Tool.from_mcp_tool` for this — it yields an ASYNC tool for `ReAct.acall`, unusable on the RLM
+  sync path. MCP tools execute HOST-SIDE (outside the sandbox; a stdio server is a spawned
+  subprocess) — treat the server as a TRUSTED dependency and its output as untrusted LM context (a
+  prompt-injection surface, like `fetch_url`). `mcp.py` lives OUTSIDE `tools/` so it may import
+  dspy + mcp; `mcp_tools` is a lazy `__getattr__` export so `import rlm_kit` stays dspy/mcp-free.
+  Each call records a `tool_call` (trace/v1, no schema change). Keep it client-only + sync-bridged.
 - **The sub-LM intercept does deterministic transforms only** (validate / post-process).
   Agentic actions (external tool calls) stay LM-decided via `tools=`, so the
   decision lands in the trajectory — keeping the run an RLM and the RL data honest.
