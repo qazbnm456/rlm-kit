@@ -4,6 +4,30 @@ version = "0.2.0"
 description = "A clean, reusable scaffold for building security tasks on DSPy Recursive Language Models (RLM)."
 readme = "README.md"
 requires-python = ">=3.11"
+license = "MIT"
+license-files = ["LICENSE"]
+authors = [{ name = "Boik Su", email = "boik.su@cycraft.com" }]
+keywords = [
+    "dspy",
+    "rlm",
+    "recursive-language-models",
+    "llm",
+    "agent",
+    "reinforcement-learning",
+    "security",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Operating System :: OS Independent",
+    "Topic :: Security",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
 dependencies = [
     "dspy>=3.2.1",
     "pydantic>=2.9",
@@ -15,6 +39,12 @@ observe = [
     "langfuse>=4.6.1",
     "openinference-instrumentation-dspy>=0.1.36",
 ]
+
+[project.urls]
+Homepage = "https://github.com/qazbnm456/rlm-kit"
+Repository = "https://github.com/qazbnm456/rlm-kit"
+Changelog = "https://github.com/qazbnm456/rlm-kit/blob/main/CHANGELOG.md"
+Issues = "https://github.com/qazbnm456/rlm-kit/issues"
 
 [dependency-groups]
 dev = [
@@ -28,8 +58,12 @@ asyncio_mode = "auto"
 testpaths = ["tests"]
 
 [build-system]
-requires = ["hatchling"]
+requires = ["hatchling>=1.27"]  # >=1.27 for PEP 639 SPDX license expressions
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["rlm_kit"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py311"

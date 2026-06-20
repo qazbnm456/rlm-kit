@@ -39,6 +39,20 @@ finding = TriageDiff().run(diff=big_patch_text)   # validated Finding
 The retry loop, pydantic validation, sandbox selection, and budget caps are all
 inherited.
 
+## Installation
+
+```bash
+# from git (pre-release — not on PyPI yet):
+pip install "git+https://github.com/qazbnm456/rlm-kit"
+# or with uv:
+uv add "git+https://github.com/qazbnm456/rlm-kit"
+```
+
+Once the first release is published, `pip install rlm-kit` will work too. `rlm-kit` needs Python ≥ 3.11
+and pulls in `dspy` + `pydantic`; observability extras are opt-in (`pip install "rlm-kit[observe]"`). A
+*live* `dspy.RLM` run additionally needs model credentials (see [Configuration](#configuration)) and a
+Deno sandbox (`brew install deno`) — the logic and tests run without either.
+
 ## Layout
 
 | Module | Responsibility |
@@ -382,3 +396,7 @@ real downstream consumer; the changes that surfaced are in [`CHANGELOG.md`](./CH
 
 Next: enable `optimize.compile_task` against a labelled trainset to actually
 GEPA-compile tasks (currently a documented stub).
+
+## License
+
+MIT © [Boik Su](https://x.com/boik_su) ([@boik_su](https://x.com/boik_su)). See [`LICENSE`](./LICENSE).

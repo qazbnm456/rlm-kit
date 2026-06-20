@@ -99,6 +99,11 @@ One companion rule ships under `.claude/rules/`:
   `trace.py` + `bind_recorder_to_sub_lm` in `sub_lm.py` were born — the cross-thread sub-LM recording
   fix; both are importable public functions, though not in the top-level `__all__`) — do not reach
   into a `_private` name. Full walkthrough: README "Building a consumer".
+- **Keep the public surface vendor-neutral.** rlm-kit's package, source, docs, and commit messages
+  refer to downstream consumers GENERICALLY ("a consumer", "a downstream UI") — never by a specific
+  project name, and never reproducing a consumer's product domain. A consumer's own concrete values
+  (model names, schemas, product terms, paths) live in the consumer, not here. This keeps the kit
+  decoupled from any one user and the published artifact free of third-party specifics.
 
 ## Versioning
 
