@@ -422,11 +422,11 @@ invariants when modifying the kit.
 
 **v0.2.0** — scaffold + harness-engineering layer (sub-LM hook, skills-as-tools,
 trajectory recording, replay, dataset export). Hardened by dogfooding against a
-real downstream consumer; the changes that surfaced are in [`CHANGELOG.md`](./CHANGELOG.md).
+real downstream consumer; the changes that surfaced are in [`CHANGELOG.md`](https://github.com/qazbnm456/rlm-kit/blob/main/CHANGELOG.md).
 
 Next: enable `optimize.compile_task` against a labelled trainset to actually
 GEPA-compile tasks (currently a documented stub).
 
 ## License
 
-MIT © [Boik Su](https://x.com/boik_su) ([@boik_su](https://x.com/boik_su)). See [`LICENSE`](./LICENSE).
+MIT © [Boik Su](https://x.com/boik_su) ([@boik_su](https://x.com/boik_su)). See [`LICENSE`](https://github.com/qazbnm456/rlm-kit/blob/main/LICENSE).
